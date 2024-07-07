@@ -11,11 +11,8 @@ public class ThreadState {
                 () -> System.out.println(Thread.currentThread().getName())
         );
         second.start();
-        while (first.getState() != Thread.State.TERMINATED) {
-            System.out.println("first = " + first.getState());
-        }
-        while (second.getState() != Thread.State.TERMINATED) {
-            System.out.println("second = " + second.getState());
+        while (first.getState() != Thread.State.TERMINATED && second.getState() != Thread.State.TERMINATED) {
+            System.out.println("first = " + first.getState() + System.lineSeparator() + "second = " + second.getState());
         }
         System.out.println(first.getState());
         System.out.println("Process is finish");
