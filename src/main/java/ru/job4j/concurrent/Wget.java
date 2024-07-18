@@ -21,17 +21,26 @@ public class Wget implements Runnable {
     @Override
     public void run() {
         long startAt = System.currentTimeMillis();
-        File file = new File("tmp.xml");
-        String url = "https://raw.githubusercontent.com/peterarsentev/course_test/master/pom.xml";
+        File file = new File(this.file);
+        String url = this.url;
         try (var input = new URL(url).openStream();
              var output = new FileOutputStream(file)) {
             System.out.println("Open connection: " + (System.currentTimeMillis() - startAt) + " ms");
             byte[] dataBuffer = new byte[512];
             int bytesRead;
+            int bytesDataRead = 0;
             while ((bytesRead = input.read(dataBuffer, 0, dataBuffer.length)) != -1) {
+                bytesDataRead += bytesRead;
                 long downloadAt = System.nanoTime();
                 output.write(dataBuffer, 0, bytesRead);
                 System.out.println("Read 512 bytes : " + (System.nanoTime() - downloadAt) + " nano.");
+                if (bytesDataRead - speed < 1000) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -47,10 +56,10 @@ public class Wget implements Runnable {
         if (url.isBlank()) {
             throw new IllegalArgumentException("Url is empty!");
         }
-        if (!url.contains("https://") && !url.contains("http://")) {
+        if (!url.startsWith("https://") && !url.startsWith("http://")) {
             throw new IllegalArgumentException("Wrong Url");
         }
-        if (speed < 0) {
+        if (speed <= 0) {
             throw new IllegalArgumentException("Invalid speed of download");
         }
         if (!fileName.contains(".")) {
@@ -63,7 +72,7 @@ public class Wget implements Runnable {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        if (args.length > 2) {
+        if (args.length == 3) {
             String url = args[0];
             int speed = Integer.parseInt(args[1]);
             String fileName = args[2];
@@ -71,6 +80,8 @@ public class Wget implements Runnable {
             Thread first = new Thread(new Wget(url, speed, fileName));
             first.start();
             first.join();
+        } else {
+            throw new IllegalArgumentException("Incorrect data");
         }
     }
 }
