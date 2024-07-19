@@ -29,16 +29,20 @@ public class Wget implements Runnable {
             byte[] dataBuffer = new byte[512];
             int bytesRead;
             int bytesDataRead = 0;
+            long start = System.currentTimeMillis();
             while ((bytesRead = input.read(dataBuffer, 0, dataBuffer.length)) != -1) {
                 bytesDataRead += bytesRead;
-                long downloadAt = System.nanoTime();
+                long downloadAt = System.currentTimeMillis();
                 output.write(dataBuffer, 0, bytesRead);
-                System.out.println("Read 512 bytes : " + (System.nanoTime() - downloadAt) + " nano.");
-                if (bytesDataRead - speed < 1000) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
+                System.out.println("Read 512 bytes : " + (System.currentTimeMillis() - downloadAt) + " millis");
+                if (bytesDataRead >= speed) {
+                    if (System.currentTimeMillis() - start < 1000) {
+                        try {
+                            Thread.sleep(1000);
+                            bytesDataRead = 0;
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
                     }
                 }
             }
