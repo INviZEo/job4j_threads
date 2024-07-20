@@ -3,7 +3,6 @@ package ru.job4j.concurrent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 
@@ -20,26 +19,24 @@ public class Wget implements Runnable {
 
     @Override
     public void run() {
-        long startAt = System.currentTimeMillis();
         File file = new File(this.file);
         String url = this.url;
         try (var input = new URL(url).openStream();
              var output = new FileOutputStream(file)) {
-            System.out.println("Open connection: " + (System.currentTimeMillis() - startAt) + " ms");
             byte[] dataBuffer = new byte[512];
             int bytesRead;
             int bytesDataRead = 0;
             long start = System.currentTimeMillis();
             while ((bytesRead = input.read(dataBuffer, 0, dataBuffer.length)) != -1) {
                 bytesDataRead += bytesRead;
-                long downloadAt = System.currentTimeMillis();
                 output.write(dataBuffer, 0, bytesRead);
-                System.out.println("Read 512 bytes : " + (System.currentTimeMillis() - downloadAt) + " millis");
                 if (bytesDataRead >= speed) {
-                    if (System.currentTimeMillis() - start < 1000) {
+                    long interval = System.currentTimeMillis() - start;
+                    if (interval < 1000) {
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(1000 - interval);
                             bytesDataRead = 0;
+                            start = System.currentTimeMillis();
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
                         }
