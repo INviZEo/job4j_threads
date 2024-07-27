@@ -35,12 +35,12 @@ public class Wget implements Runnable {
                     if (interval < 1000) {
                         try {
                             Thread.sleep(1000 - interval);
-                            bytesDataRead = 0;
-                            start = System.currentTimeMillis();
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
                         }
                     }
+                    bytesDataRead = 0;
+                    start = System.currentTimeMillis();
                 }
             }
         } catch (IOException e) {
