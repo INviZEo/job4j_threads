@@ -27,7 +27,8 @@ public class AccountStorage {
         Account firstAcc = accounts.get(fromId);
         Account secondAcc = accounts.get(toId);
         if (firstAcc != null && secondAcc != null && firstAcc.amount() >= amount) {
-            /* firstAcc.amount() - amount; */
+            accounts.replace(fromId, new Account(fromId, firstAcc.amount() - amount));
+            accounts.replace(toId, new Account(toId, secondAcc.amount() + amount));
             rsl = true;
         }
         return rsl;
