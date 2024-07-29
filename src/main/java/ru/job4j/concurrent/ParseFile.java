@@ -16,7 +16,7 @@ public class ParseFile {
         StringBuilder output = new StringBuilder(String.valueOf(fileOutput));
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             int data;
-            while ((data = reader.read()) > 0) {
+            while ((data = reader.read()) != -1) {
                 char ch = (char) data;
                 if (filter.test(ch)) {
                     output.append(ch);
@@ -26,16 +26,11 @@ public class ParseFile {
         return output.toString();
     }
 
+    public String getContent() throws IOException {
+        return content(character -> true);
+    }
+
     public String getContentWithoutUnicode() throws IOException {
-        StringBuilder output = new StringBuilder(String.valueOf(fileOutput));
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
-            int data;
-            while ((data = reader.read()) > 0) {
-                if (data < 0x80) {
-                    output.append((char) data);
-                }
-            }
-            return output.toString();
-        }
+        return content(character -> character < 0x80);
     }
 }
