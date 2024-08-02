@@ -27,7 +27,7 @@ public class SingleLockList<T> implements Iterable<T> {
 
     @Override
     public synchronized Iterator<T> iterator() {
-        return Objects.requireNonNull(copy(list)).iterator();
+        return copy(list).iterator();
     }
 
     private synchronized List<T> copy(List<T> origin) {
