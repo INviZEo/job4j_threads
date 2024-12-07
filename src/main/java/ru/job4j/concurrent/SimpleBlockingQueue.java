@@ -15,14 +15,15 @@ public class SimpleBlockingQueue<T> {
 
     public void offer(T value) {
         synchronized (blockQueue) {
-            while (queue.size() == 3)
+            while (queue.size() == 3) {
                 try {
                     blockQueue.wait();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-            queue.offer(value);
-            blockQueue.notifyAll();
+                queue.offer(value);
+                blockQueue.notifyAll();
+            }
         }
     }
 
