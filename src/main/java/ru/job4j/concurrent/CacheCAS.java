@@ -16,8 +16,8 @@ public class CacheCAS {
     public boolean update(Base model) throws OptimisticException {
         boolean result = false;
         if (memory.containsKey(model.id())) {
-            memory.put(model.id(), model);
-            result = true;
+           result = memory.computeIfPresent(model.id(), (id, existingModel)
+        -> model) != null;
         }
         return result;
     }
