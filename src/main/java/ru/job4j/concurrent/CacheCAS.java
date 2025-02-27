@@ -10,14 +10,22 @@ public class CacheCAS {
     private final Map<Integer, Base> memory = new ConcurrentHashMap<>();
 
     public boolean add(Base model) throws OptimisticException {
-        return memory.putIfAbsent(model.id(), model) == null;
+        boolean result;
+        if (memory.putIfAbsent(model.id(), model) != null) {
+            result = true;
+        } else {
+            throw new OptimisticException("Model is exist");
+        }
+        return result;
     }
 
     public boolean update(Base model) throws OptimisticException {
-        boolean result = false;
-        if (memory.containsKey(model.id())) {
-           result = memory.computeIfPresent(model.id(), (id, existingModel)
-        -> model) != null;
+        boolean result;
+        if (memory.computeIfPresent(model.id(), (id, existingModel)
+                -> model) != null) {
+            result = true;
+        } else {
+            throw new OptimisticException("Model not exist");
         }
         return result;
     }
