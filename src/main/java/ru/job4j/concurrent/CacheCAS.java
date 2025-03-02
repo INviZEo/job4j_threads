@@ -1,33 +1,23 @@
 package ru.job4j.concurrent;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 
 public class CacheCAS {
     private final Map<Integer, Base> memory = new ConcurrentHashMap<>();
 
     public boolean add(Base model) throws OptimisticException {
-        boolean result;
-        if (memory.putIfAbsent(model.id(), model) != null) {
-            result = true;
-        } else {
-            throw new OptimisticException("Model is exist");
-        }
-        return result;
+        return memory.putIfAbsent(model.id(), model) == null;
     }
 
     public boolean update(Base model) throws OptimisticException {
-        boolean result;
-        if (memory.computeIfPresent(model.id(), (id, existingModel)
-                -> model) != null) {
-            result = true;
-        } else {
-            throw new OptimisticException("Model not exist");
-        }
-        return result;
+        return memory.computeIfPresent(model.id(), (key, value) -> {
+            if (value.version() != model.version()) {
+                throw new OptimisticException("Model is exist");
+            }
+            return new Base(model.id(), model.name(), model.version() + 1);
+        }) != null;
     }
 
     public void delete(int id) {
